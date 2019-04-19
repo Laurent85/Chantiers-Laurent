@@ -64,8 +64,8 @@ namespace Chantiers_Laurent
             lblAttente.Invoke(new MethodInvoker(delegate
             {
                 lblAttente.Parent = dataGridView1;
-    lblAttente.Visible = true;
-}));
+                lblAttente.Visible = true;
+            }));
             var strPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx";
             if (File.Exists(strPath)) File.Delete(strPath);
             var assembly = Assembly.GetExecutingAssembly();
@@ -384,12 +384,16 @@ namespace Chantiers_Laurent
 
         private void btnEnregistrerFichier_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog folderBrowserDialog1 = new FolderBrowserDialog();
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            SaveFileDialog dialogueEnregistrement = new SaveFileDialog();
+            dialogueEnregistrement.Filter = @"xlsx files (*.xlsx) | *.xlsx";
+            dialogueEnregistrement.Title = @"Générer le fichier Excel";
+            dialogueEnregistrement.InitialDirectory = @"C:\";
+            dialogueEnregistrement.OverwritePrompt = true;
+            if (dialogueEnregistrement.ShowDialog() == DialogResult.OK)
             {
-                var folderPath = folderBrowserDialog1.SelectedPath;
+                string nomFichier = dialogueEnregistrement.FileName;
                 File.Copy(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx",
-                    folderPath + @"\Chantiers.xlsx");
+                nomFichier, true);
             }
         }
 

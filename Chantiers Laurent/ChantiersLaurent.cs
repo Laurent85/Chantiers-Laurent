@@ -14,7 +14,7 @@ namespace Chantiers_Laurent
         public int Compteur;
         public int Progression;
         public string CheminModèle;
-        private readonly System.Data.DataTable _data = new System.Data.DataTable();
+        private readonly System.Data.DataTable _tableauDonnées = new System.Data.DataTable();
 
         public Principal()
         {
@@ -28,8 +28,9 @@ namespace Chantiers_Laurent
             cbxRaisonSociale.Enabled = false;
             txbRecherche.Enabled = false;
             btnEnregistrerFichier.Enabled = false;
-            dataGridView1.DoubleBuffered(true);
+            tableauRésultats.DoubleBuffered(true);
             lblAttente.Visible = false;
+            barreProgression.Visible = false;
         }
 
         private void BtnFicherExcelDépart(object sender, EventArgs e)
@@ -63,7 +64,7 @@ namespace Chantiers_Laurent
         {
             lblAttente.Invoke(new MethodInvoker(delegate
             {
-                lblAttente.Parent = dataGridView1;
+                lblAttente.Parent = tableauRésultats;
                 lblAttente.Visible = true;
             }));
             var strPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx";
@@ -101,10 +102,10 @@ namespace Chantiers_Laurent
             System.Data.DataTable data = new System.Data.DataTable();
             sda.Fill(data);
 
-            dataGridView1.Invoke(new MethodInvoker(delegate
+            tableauRésultats.Invoke(new MethodInvoker(delegate
 {
-    dataGridView1.DataSource = data;
-    if (dataGridView1.Rows.Count > 0) btnTraitement.Enabled = true;
+    tableauRésultats.DataSource = data;
+    if (tableauRésultats.Rows.Count > 0) btnTraitement.Enabled = true;
 }));
 
             con.Close();
@@ -125,6 +126,7 @@ namespace Chantiers_Laurent
         private void BtnTraitementFichierExcel(object sender, EventArgs e)
         {
             bgwExcelFinal.RunWorkerAsync();
+            barreProgression.Visible = true;
         }
 
         private void BgwTraitementExcelFinal(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -138,7 +140,7 @@ namespace Chantiers_Laurent
 
             Workbook fichierExcelModèle = xlApp.Workbooks.Open(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx");
             Worksheet feuilleModèle = fichierExcelModèle.Worksheets[1];
-
+            
             int ligneModèle = 6;
             int dernierRang = feuilleDépart.Cells.Find("*", Missing.Value,
                                Missing.Value, Missing.Value,
@@ -247,13 +249,13 @@ namespace Chantiers_Laurent
             //OleDbCommand oconn = new OleDbCommand("Select * From [" + feuilleDépart.Name + "$] WHERE [Nom de l'offre / du chantier] LIKE '%ICF%'", con);
             OleDbCommand oconn = new OleDbCommand("Select * From [" + feuilleModèle.Name + "$A5:AA5000]", con);
             OleDbDataAdapter sda = new OleDbDataAdapter(oconn);
-            //System.Data.DataTable data = new System.Data.DataTable();
-            sda.Fill(_data);
-            dataGridView1.Invoke(new MethodInvoker(delegate
+            _tableauDonnées.Clear();
+            sda.Fill(_tableauDonnées);
+            tableauRésultats.Invoke(new MethodInvoker(delegate
 {
-    dataGridView1.DataSource = _data;
-    dataGridView1.RowsDefaultCellStyle.BackColor = Color.Bisque;
-    dataGridView1.AlternatingRowsDefaultCellStyle.BackColor =
+    tableauRésultats.DataSource = _tableauDonnées;
+    tableauRésultats.RowsDefaultCellStyle.BackColor = Color.Bisque;
+    tableauRésultats.AlternatingRowsDefaultCellStyle.BackColor =
         Color.Beige;
     con.Close();
 }));
@@ -262,19 +264,19 @@ namespace Chantiers_Laurent
             fichierExcelModèle.Close(0);
             xlApp.Quit();
             GC.Collect();
-            RemplirCombobox();
+            RemplirComboboxRaisonSociale();
         }
 
         private void BgwProgressionExcelFinal(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
-            progressBar1.Maximum = Compteur;
-            progressBar1.Value = e.ProgressPercentage;
+            barreProgression.Maximum = Compteur;
+            barreProgression.Value = e.ProgressPercentage;
             lblProgression.Text = Progression + @" / " + Compteur;
         }
 
         private void BgwTerminéExcelFinal(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            progressBar1.Value = 0;
+            barreProgression.Value = 0;
             lblProgression.Text = @"Traitement terminé !";
             cbxRaisonSociale.Enabled = true;
             txbRecherche.Enabled = true;
@@ -282,33 +284,30 @@ namespace Chantiers_Laurent
             cbxRaisonSociale.SelectedIndex = 0;
         }
 
-        private void CopieFichierModèle(Stream input, Stream output)
+        private void cbxRaisonSociale_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var buffer = new byte[32768];
-            while (true)
+            txbRecherche.Text = cbxRaisonSociale.Text;
+            if (cbxRaisonSociale.Text == @"***AUCUN FILTRE***")
             {
-                var read = input.Read(buffer, 0, buffer.Length);
-                if (read <= 0)
-                    return;
-                output.Write(buffer, 0, read);
+                txbRecherche.Text = "";
             }
         }
 
-        private void txbRecherche_TextChanged(object sender, EventArgs e)
+        private void TxbRechercheRaisonSociale(object sender, EventArgs e)
         {
-            DataView dv = new DataView(_data)
+            DataView dv = new DataView(_tableauDonnées)
             {
                 RowFilter = "[Raison sociale] like '" + txbRecherche.Text + "%' OR [Raison sociale1] like '" +
                             txbRecherche.Text + "%' OR [Raison sociale2] like '" + txbRecherche.Text +
                             "%' OR [Raison sociale3] like '" + txbRecherche.Text + "%'"
             };
-            dataGridView1.DataSource = dv;
+            tableauRésultats.DataSource = dv;
 
-            if (dataGridView1.Rows.Count == 1)
+            if (tableauRésultats.Rows.Count == 1)
             {
-                foreach (DataGridViewColumn colonne in dataGridView1.Columns)
+                foreach (DataGridViewColumn colonne in tableauRésultats.Columns)
                 {
-                    if (dataGridView1.Rows[0].Cells[colonne.Name].Value.ToString() == "")
+                    if (tableauRésultats.Rows[0].Cells[colonne.Name].Value.ToString() == "")
                     {
                         colonne.Visible = false;
                     }
@@ -320,17 +319,17 @@ namespace Chantiers_Laurent
             }
             else
             {
-                foreach (DataGridViewColumn colonne in dataGridView1.Columns)
+                foreach (DataGridViewColumn colonne in tableauRésultats.Columns)
                 {
                     colonne.Visible = true;
                 }
             }
 
-            if (dataGridView1.Rows.Count > 0 && txbRecherche.Text != "")
+            if (tableauRésultats.Rows.Count > 0 && txbRecherche.Text != "")
             {
                 txbRecherche.BackColor = Color.LightGreen;
             }
-            if (dataGridView1.Rows.Count == 0 && txbRecherche.Text != "")
+            if (tableauRésultats.Rows.Count == 0 && txbRecherche.Text != "")
             {
                 txbRecherche.BackColor = Color.Red;
             }
@@ -340,33 +339,48 @@ namespace Chantiers_Laurent
             }
         }
 
-        private void RemplirCombobox()
+        private void BtnEnregistrerFichierExcel(object sender, EventArgs e)
         {
-            dataGridView1.Invoke(new MethodInvoker(delegate
+            SaveFileDialog dialogueEnregistrement = new SaveFileDialog();
+            dialogueEnregistrement.Filter = @"xlsx files (*.xlsx) | *.xlsx";
+            dialogueEnregistrement.Title = @"Générer le fichier Excel";
+            dialogueEnregistrement.InitialDirectory = @"C:\";
+            dialogueEnregistrement.OverwritePrompt = true;
+            if (dialogueEnregistrement.ShowDialog() == DialogResult.OK)
+            {
+                string nomFichier = dialogueEnregistrement.FileName;
+                File.Copy(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx",
+                nomFichier, true);
+            }
+        }
+
+        private void RemplirComboboxRaisonSociale()
+        {
+            tableauRésultats.Invoke(new MethodInvoker(delegate
 {
     cbxRaisonSociale.Items.Clear();
 
-    for (int i = 0; i < dataGridView1.Rows.Count; i++)
+    for (int i = 0; i < tableauRésultats.Rows.Count; i++)
     {
-        if (dataGridView1[11, i].Value != null)
+        if (tableauRésultats[11, i].Value != null)
         {
-            if (!cbxRaisonSociale.Items.Contains(dataGridView1[11, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(dataGridView1[11, i].Value.ToString());
+            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[11, i].Value.ToString()))
+                cbxRaisonSociale.Items.Add(tableauRésultats[11, i].Value.ToString());
         }
-        if (dataGridView1[15, i].Value != null)
+        if (tableauRésultats[15, i].Value != null)
         {
-            if (!cbxRaisonSociale.Items.Contains(dataGridView1[15, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(dataGridView1[15, i].Value.ToString());
+            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[15, i].Value.ToString()))
+                cbxRaisonSociale.Items.Add(tableauRésultats[15, i].Value.ToString());
         }
-        if (dataGridView1[19, i].Value != null)
+        if (tableauRésultats[19, i].Value != null)
         {
-            if (!cbxRaisonSociale.Items.Contains(dataGridView1[19, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(dataGridView1[19, i].Value.ToString());
+            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[19, i].Value.ToString()))
+                cbxRaisonSociale.Items.Add(tableauRésultats[19, i].Value.ToString());
         }
-        if (dataGridView1[23, i].Value != null)
+        if (tableauRésultats[23, i].Value != null)
         {
-            if (!cbxRaisonSociale.Items.Contains(dataGridView1[23, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(dataGridView1[23, i].Value.ToString());
+            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[23, i].Value.ToString()))
+                cbxRaisonSociale.Items.Add(tableauRésultats[23, i].Value.ToString());
         }
     }
 
@@ -382,27 +396,15 @@ namespace Chantiers_Laurent
 }));
         }
 
-        private void btnEnregistrerFichier_Click(object sender, EventArgs e)
+        private void CopieFichierModèle(Stream input, Stream output)
         {
-            SaveFileDialog dialogueEnregistrement = new SaveFileDialog();
-            dialogueEnregistrement.Filter = @"xlsx files (*.xlsx) | *.xlsx";
-            dialogueEnregistrement.Title = @"Générer le fichier Excel";
-            dialogueEnregistrement.InitialDirectory = @"C:\";
-            dialogueEnregistrement.OverwritePrompt = true;
-            if (dialogueEnregistrement.ShowDialog() == DialogResult.OK)
+            var buffer = new byte[32768];
+            while (true)
             {
-                string nomFichier = dialogueEnregistrement.FileName;
-                File.Copy(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx",
-                nomFichier, true);
-            }
-        }
-
-        private void cbxRaisonSociale_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            txbRecherche.Text = cbxRaisonSociale.Text;
-            if (cbxRaisonSociale.Text == @"***AUCUN FILTRE***")
-            {
-                txbRecherche.Text = "";
+                var read = input.Read(buffer, 0, buffer.Length);
+                if (read <= 0)
+                    return;
+                output.Write(buffer, 0, read);
             }
         }
     }

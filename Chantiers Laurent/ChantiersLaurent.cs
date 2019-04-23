@@ -79,14 +79,18 @@ namespace Chantiers_Laurent
             Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
             xlApp.Visible = false;
             xlApp.DisplayAlerts = false;
-            Workbook fichierExcelDépart = xlApp.Workbooks.Open(lblCheminFichierModèle.Text);
+            Workbook fichierExcelDépart =
+                xlApp.Workbooks.Open(lblCheminFichierModèle.Text, ReadOnly: false, Notify: false);
+
             Worksheet feuilleDépart = fichierExcelDépart.Worksheets[1];
             Range colonnes12 = feuilleDépart.Range[feuilleDépart.Cells[1, 1], feuilleDépart.Cells[1, 2]];
             colonnes12.UnMerge();
 
             feuilleDépart.Range["B1"].EntireColumn.Delete();
-            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx")) File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx");
-            fichierExcelDépart.SaveAs(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx");
+            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx"))
+                File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx");
+            fichierExcelDépart.SaveAs(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                                      @"\Base.xlsx");
 
             String constr = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" +
                             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx" +
@@ -95,7 +99,6 @@ namespace Chantiers_Laurent
             OleDbConnection con = new OleDbConnection(constr);
             con.Open();
 
-            //OleDbCommand oconn = new OleDbCommand("Select * From [" + feuilleDépart.Name + "$] WHERE [Nom de l'offre / du chantier] LIKE '%ICF%'", con);
             OleDbCommand oconn = new OleDbCommand("Select * From [" + feuilleDépart.Name + "$]", con);
 
             OleDbDataAdapter sda = new OleDbDataAdapter(oconn);
@@ -103,19 +106,15 @@ namespace Chantiers_Laurent
             sda.Fill(data);
 
             tableauRésultats.Invoke(new MethodInvoker(delegate
-{
-    tableauRésultats.DataSource = data;
-    if (tableauRésultats.Rows.Count > 0) btnTraitement.Enabled = true;
-}));
+            {
+                tableauRésultats.DataSource = data;
+                if (tableauRésultats.Rows.Count > 0) btnTraitement.Enabled = true;
+            }));
 
             con.Close();
             fichierExcelDépart.Close(0);
             xlApp.Quit();
             GC.Collect();
-        }
-
-        private void BgwProgressionExcelBase(object sender, System.ComponentModel.ProgressChangedEventArgs e)
-        {
         }
 
         private void BgwTerminéExcelBase(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
@@ -135,17 +134,23 @@ namespace Chantiers_Laurent
             xlApp.Visible = false;
             xlApp.DisplayAlerts = false;
 
-            Workbook fichierExcelDépart = xlApp.Workbooks.Open(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx");
+            Workbook fichierExcelDépart =
+                xlApp.Workbooks.Open(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Base.xlsx",
+                    ReadOnly: false, Notify: false);
             Worksheet feuilleDépart = fichierExcelDépart.Worksheets[1];
 
-            Workbook fichierExcelModèle = xlApp.Workbooks.Open(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx");
+            Workbook fichierExcelModèle =
+                xlApp.Workbooks.Open(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx",
+                    ReadOnly: false, Notify: false);
             Worksheet feuilleModèle = fichierExcelModèle.Worksheets[1];
-            
+
             int ligneModèle = 6;
             int dernierRang = feuilleDépart.Cells.Find("*", Missing.Value,
-                               Missing.Value, Missing.Value,
-                               XlSearchOrder.xlByRows, XlSearchDirection.xlPrevious,
-                               false, Missing.Value, Missing.Value).Row;
+                Missing.Value, Missing.Value,
+                XlSearchOrder.xlByRows, XlSearchDirection.xlPrevious,
+                false, Missing.Value, Missing.Value).Row;
             Compteur = dernierRang;
 
             for (int i = 2; i <= dernierRang; i++)
@@ -156,29 +161,37 @@ namespace Chantiers_Laurent
                     {
                         if (feuilleDépart.Cells[i, 12].Value == "Bureau d'études")
                         {
-                            Range ligneSource = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 20], feuilleModèle.Cells[ligneModèle, 23]];
+                            Range ligneSource =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 20],
+                                feuilleModèle.Cells[ligneModèle, 23]];
 
                             ligneSource.Copy(ligneDestination);
                         }
                         if (feuilleDépart.Cells[i, 12].Value == "Installateur")
                         {
-                            Range ligneSource = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 24], feuilleModèle.Cells[ligneModèle, 27]];
+                            Range ligneSource =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 24],
+                                feuilleModèle.Cells[ligneModèle, 27]];
 
                             ligneSource.Copy(ligneDestination);
                         }
                         if (feuilleDépart.Cells[i, 12].Value == "Maitrise Ouvrage")
                         {
-                            Range ligneSource = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 12], feuilleModèle.Cells[ligneModèle, 15]];
+                            Range ligneSource =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 12],
+                                feuilleModèle.Cells[ligneModèle, 15]];
 
                             ligneSource.Copy(ligneDestination);
                         }
                         if (feuilleDépart.Cells[i, 12].Value == "Entreprise Generale")
                         {
-                            Range ligneSource = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 16], feuilleModèle.Cells[ligneModèle, 19]];
+                            Range ligneSource =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 16],
+                                feuilleModèle.Cells[ligneModèle, 19]];
 
                             ligneSource.Copy(ligneDestination);
                         }
@@ -186,35 +199,44 @@ namespace Chantiers_Laurent
                     else
                     {
                         Range ligneSource = feuilleDépart.Range[feuilleDépart.Cells[i, 1], feuilleDépart.Cells[i, 11]];
-                        Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 1], feuilleModèle.Cells[ligneModèle, 11]];
+                        Range ligneDestination = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 1],
+                            feuilleModèle.Cells[ligneModèle, 11]];
 
                         ligneSource.Copy(ligneDestination);
 
                         if (feuilleDépart.Cells[i, 12].Value == "Bureau d'études")
                         {
-                            Range ligneSource1 = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 20], feuilleModèle.Cells[ligneModèle, 23]];
+                            Range ligneSource1 =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 20],
+                                feuilleModèle.Cells[ligneModèle, 23]];
 
                             ligneSource1.Copy(ligneDestination1);
                         }
                         if (feuilleDépart.Cells[i, 12].Value == "Installateur")
                         {
-                            Range ligneSource1 = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 24], feuilleModèle.Cells[ligneModèle, 27]];
+                            Range ligneSource1 =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 24],
+                                feuilleModèle.Cells[ligneModèle, 27]];
 
                             ligneSource1.Copy(ligneDestination1);
                         }
                         if (feuilleDépart.Cells[i, 12].Value == "Maitrise Ouvrage")
                         {
-                            Range ligneSource1 = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 12], feuilleModèle.Cells[ligneModèle, 15]];
+                            Range ligneSource1 =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 12],
+                                feuilleModèle.Cells[ligneModèle, 15]];
 
                             ligneSource1.Copy(ligneDestination1);
                         }
                         if (feuilleDépart.Cells[i, 12].Value == "Entreprise Generale")
                         {
-                            Range ligneSource1 = feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
-                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 16], feuilleModèle.Cells[ligneModèle, 19]];
+                            Range ligneSource1 =
+                                feuilleDépart.Range[feuilleDépart.Cells[i, 13], feuilleDépart.Cells[i, 16]];
+                            Range ligneDestination1 = feuilleModèle.Range[feuilleModèle.Cells[ligneModèle, 16],
+                                feuilleModèle.Cells[ligneModèle, 19]];
 
                             ligneSource1.Copy(ligneDestination1);
                         }
@@ -240,25 +262,24 @@ namespace Chantiers_Laurent
             fichierExcelModèle.Save();
 
             String constr = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" +
-                                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx" +
-                                ";Extended Properties='Excel 12.0 XML;HDR=YES;';";
+                            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx" +
+                            ";Extended Properties='Excel 12.0 XML;HDR=YES;';";
 
             OleDbConnection con = new OleDbConnection(constr);
             con.Open();
 
-            //OleDbCommand oconn = new OleDbCommand("Select * From [" + feuilleDépart.Name + "$] WHERE [Nom de l'offre / du chantier] LIKE '%ICF%'", con);
             OleDbCommand oconn = new OleDbCommand("Select * From [" + feuilleModèle.Name + "$A5:AA5000]", con);
             OleDbDataAdapter sda = new OleDbDataAdapter(oconn);
             _tableauDonnées.Clear();
             sda.Fill(_tableauDonnées);
             tableauRésultats.Invoke(new MethodInvoker(delegate
-{
-    tableauRésultats.DataSource = _tableauDonnées;
-    tableauRésultats.RowsDefaultCellStyle.BackColor = Color.Bisque;
-    tableauRésultats.AlternatingRowsDefaultCellStyle.BackColor =
-        Color.Beige;
-    con.Close();
-}));
+            {
+                tableauRésultats.DataSource = _tableauDonnées;
+                tableauRésultats.RowsDefaultCellStyle.BackColor = Color.Bisque;
+                tableauRésultats.AlternatingRowsDefaultCellStyle.BackColor =
+                    Color.Beige;
+                con.Close();
+            }));
 
             fichierExcelDépart.Close(0);
             fichierExcelModèle.Close(0);
@@ -350,50 +371,79 @@ namespace Chantiers_Laurent
             {
                 string nomFichier = dialogueEnregistrement.FileName;
                 File.Copy(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Modèle.xlsx",
-                nomFichier, true);
+                    nomFichier, true);
+                MessageBox.Show(@"Fichier enregistré dans le dossier" + Environment.NewLine +
+                                dialogueEnregistrement.FileName);
+            }
+        }
+
+        private void Drag_Enter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void Drag_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] fileList = (string[]) e.Data.GetData(DataFormats.FileDrop);
+
+                if (fileList.Length == 1)
+                {
+                    lblCheminFichierModèle.Text = Path.GetFullPath(fileList[0]);
+                    bgwExcelBase.RunWorkerAsync();
+                }
+                else MessageBox.Show(@"Un seul fichier doit être déposé");
             }
         }
 
         private void RemplirComboboxRaisonSociale()
         {
             tableauRésultats.Invoke(new MethodInvoker(delegate
-{
-    cbxRaisonSociale.Items.Clear();
+            {
+                cbxRaisonSociale.Items.Clear();
 
-    for (int i = 0; i < tableauRésultats.Rows.Count; i++)
-    {
-        if (tableauRésultats[11, i].Value != null)
-        {
-            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[11, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(tableauRésultats[11, i].Value.ToString());
-        }
-        if (tableauRésultats[15, i].Value != null)
-        {
-            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[15, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(tableauRésultats[15, i].Value.ToString());
-        }
-        if (tableauRésultats[19, i].Value != null)
-        {
-            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[19, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(tableauRésultats[19, i].Value.ToString());
-        }
-        if (tableauRésultats[23, i].Value != null)
-        {
-            if (!cbxRaisonSociale.Items.Contains(tableauRésultats[23, i].Value.ToString()))
-                cbxRaisonSociale.Items.Add(tableauRésultats[23, i].Value.ToString());
-        }
-    }
+                for (int i = 0; i < tableauRésultats.Rows.Count; i++)
+                {
+                    if (tableauRésultats[11, i].Value != null)
+                    {
+                        if (!cbxRaisonSociale.Items.Contains(tableauRésultats[11, i].Value.ToString()))
+                            cbxRaisonSociale.Items.Add(tableauRésultats[11, i].Value.ToString());
+                    }
+                    if (tableauRésultats[15, i].Value != null)
+                    {
+                        if (!cbxRaisonSociale.Items.Contains(tableauRésultats[15, i].Value.ToString()))
+                            cbxRaisonSociale.Items.Add(tableauRésultats[15, i].Value.ToString());
+                    }
+                    if (tableauRésultats[19, i].Value != null)
+                    {
+                        if (!cbxRaisonSociale.Items.Contains(tableauRésultats[19, i].Value.ToString()))
+                            cbxRaisonSociale.Items.Add(tableauRésultats[19, i].Value.ToString());
+                    }
+                    if (tableauRésultats[23, i].Value != null)
+                    {
+                        if (!cbxRaisonSociale.Items.Contains(tableauRésultats[23, i].Value.ToString()))
+                            cbxRaisonSociale.Items.Add(tableauRésultats[23, i].Value.ToString());
+                    }
+                }
 
-    for (int i = 0; i < cbxRaisonSociale.Items.Count; i++)
-    {
-        if (cbxRaisonSociale.GetItemText(cbxRaisonSociale.Items[i]) == "")
-        {
-            cbxRaisonSociale.Items.Remove(cbxRaisonSociale.Items[i]);
-        }
-    }
+                for (int i = 0; i < cbxRaisonSociale.Items.Count; i++)
+                {
+                    if (cbxRaisonSociale.GetItemText(cbxRaisonSociale.Items[i]) == "")
+                    {
+                        cbxRaisonSociale.Items.Remove(cbxRaisonSociale.Items[i]);
+                    }
+                }
 
-    cbxRaisonSociale.Items.Add("***AUCUN FILTRE***");
-}));
+                cbxRaisonSociale.Items.Add("***AUCUN FILTRE***");
+            }));
         }
 
         private void CopieFichierModèle(Stream input, Stream output)

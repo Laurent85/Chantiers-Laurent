@@ -52,6 +52,7 @@
             // 
             // tableauRésultats
             // 
+            this.tableauRésultats.AllowDrop = true;
             this.tableauRésultats.AllowUserToAddRows = false;
             this.tableauRésultats.AllowUserToDeleteRows = false;
             this.tableauRésultats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -70,25 +71,29 @@
             this.tableauRésultats.Name = "tableauRésultats";
             this.tableauRésultats.Size = new System.Drawing.Size(1310, 450);
             this.tableauRésultats.TabIndex = 0;
+            this.tableauRésultats.DragDrop += new System.Windows.Forms.DragEventHandler(this.Drag_Drop);
+            this.tableauRésultats.DragEnter += new System.Windows.Forms.DragEventHandler(this.Drag_Enter);
             // 
             // btnTraitement
             // 
+            this.btnTraitement.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.btnTraitement.Location = new System.Drawing.Point(31, 136);
             this.btnTraitement.Name = "btnTraitement";
-            this.btnTraitement.Size = new System.Drawing.Size(87, 23);
+            this.btnTraitement.Size = new System.Drawing.Size(98, 23);
             this.btnTraitement.TabIndex = 2;
             this.btnTraitement.Text = "Traitement";
-            this.btnTraitement.UseVisualStyleBackColor = true;
+            this.btnTraitement.UseVisualStyleBackColor = false;
             this.btnTraitement.Click += new System.EventHandler(this.BtnTraitementFichierExcel);
             // 
             // btnFichierExcelDépart
             // 
+            this.btnFichierExcelDépart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.btnFichierExcelDépart.Location = new System.Drawing.Point(31, 107);
             this.btnFichierExcelDépart.Name = "btnFichierExcelDépart";
-            this.btnFichierExcelDépart.Size = new System.Drawing.Size(87, 23);
+            this.btnFichierExcelDépart.Size = new System.Drawing.Size(98, 23);
             this.btnFichierExcelDépart.TabIndex = 3;
             this.btnFichierExcelDépart.Text = "Fichier excel...";
-            this.btnFichierExcelDépart.UseVisualStyleBackColor = true;
+            this.btnFichierExcelDépart.UseVisualStyleBackColor = false;
             this.btnFichierExcelDépart.Click += new System.EventHandler(this.BtnFicherExcelDépart);
             // 
             // lblCheminFichierModèle
@@ -142,12 +147,13 @@
             // btnEnregistrerFichier
             // 
             this.btnEnregistrerFichier.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnEnregistrerFichier.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.btnEnregistrerFichier.Location = new System.Drawing.Point(1193, 136);
             this.btnEnregistrerFichier.Name = "btnEnregistrerFichier";
             this.btnEnregistrerFichier.Size = new System.Drawing.Size(148, 23);
             this.btnEnregistrerFichier.TabIndex = 8;
             this.btnEnregistrerFichier.Text = "Enregistrer le fichier excel...";
-            this.btnEnregistrerFichier.UseVisualStyleBackColor = true;
+            this.btnEnregistrerFichier.UseVisualStyleBackColor = false;
             this.btnEnregistrerFichier.Click += new System.EventHandler(this.BtnEnregistrerFichierExcel);
             // 
             // cbxRaisonSociale
@@ -166,7 +172,6 @@
             // 
             this.bgwExcelBase.WorkerReportsProgress = true;
             this.bgwExcelBase.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BgwTraitementExcelBase);
-            this.bgwExcelBase.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BgwProgressionExcelBase);
             this.bgwExcelBase.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BgwTerminéExcelBase);
             // 
             // lblAttente
@@ -179,6 +184,7 @@
             this.lblAttente.Size = new System.Drawing.Size(665, 37);
             this.lblAttente.TabIndex = 10;
             this.lblAttente.Text = "Chargement du fichier. Veuillez patienter...";
+            this.lblAttente.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // LogoAtlantic
             // 

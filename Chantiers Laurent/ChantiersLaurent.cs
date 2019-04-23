@@ -303,6 +303,7 @@ namespace Chantiers_Laurent
             txbRecherche.Enabled = true;
             btnEnregistrerFichier.Enabled = true;
             cbxRaisonSociale.SelectedIndex = 0;
+            ChbFigerColonne_CheckedChanged(sender, e);
         }
 
         private void cbxRaisonSociale_SelectedIndexChanged(object sender, EventArgs e)
@@ -401,6 +402,16 @@ namespace Chantiers_Laurent
                     bgwExcelBase.RunWorkerAsync();
                 }
                 else MessageBox.Show(@"Un seul fichier doit être déposé");
+            }
+        }
+
+        private void ChbFigerColonne_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chbFigerColonne.Checked) tableauRésultats.Columns[1].Frozen = true;
+            else
+            {
+                tableauRésultats.Columns[1].Frozen = false;
+                tableauRésultats.Columns[0].Frozen = false;
             }
         }
 

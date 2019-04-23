@@ -46,6 +46,7 @@
             this.lblTitre = new System.Windows.Forms.Label();
             this.lblRaisonSociale = new System.Windows.Forms.Label();
             this.lblRecherche = new System.Windows.Forms.Label();
+            this.chbFigerColonne = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.tableauRésultats)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.LogoAtlantic)).BeginInit();
             this.SuspendLayout();
@@ -58,6 +59,7 @@
             this.tableauRésultats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableauRésultats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -69,6 +71,7 @@
             this.tableauRésultats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.tableauRésultats.Location = new System.Drawing.Point(31, 185);
             this.tableauRésultats.Name = "tableauRésultats";
+            this.tableauRésultats.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.tableauRésultats.Size = new System.Drawing.Size(1310, 450);
             this.tableauRésultats.TabIndex = 0;
             this.tableauRésultats.DragDrop += new System.Windows.Forms.DragEventHandler(this.Drag_Drop);
@@ -229,11 +232,23 @@
             this.lblRecherche.TabIndex = 14;
             this.lblRecherche.Text = "Recherche";
             // 
+            // chbFigerColonne
+            // 
+            this.chbFigerColonne.AutoSize = true;
+            this.chbFigerColonne.Location = new System.Drawing.Point(516, 140);
+            this.chbFigerColonne.Name = "chbFigerColonne";
+            this.chbFigerColonne.Size = new System.Drawing.Size(153, 17);
+            this.chbFigerColonne.TabIndex = 15;
+            this.chbFigerColonne.Text = "Figer la colonne \"Chantier\"";
+            this.chbFigerColonne.UseVisualStyleBackColor = true;
+            this.chbFigerColonne.CheckedChanged += new System.EventHandler(this.ChbFigerColonne_CheckedChanged);
+            // 
             // Principal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1370, 653);
+            this.Controls.Add(this.chbFigerColonne);
             this.Controls.Add(this.lblRecherche);
             this.Controls.Add(this.lblRaisonSociale);
             this.Controls.Add(this.LogoAtlantic);
@@ -279,6 +294,7 @@
         private System.Windows.Forms.Label lblTitre;
         private System.Windows.Forms.Label lblRaisonSociale;
         private System.Windows.Forms.Label lblRecherche;
+        private System.Windows.Forms.CheckBox chbFigerColonne;
     }
 }
 
